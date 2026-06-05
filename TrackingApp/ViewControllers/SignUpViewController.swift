@@ -7,8 +7,14 @@
 
 import UIKit
 import FirebaseAuth
+import FirebaseFirestore
 
 class SignUpViewController: UIViewController {
+    
+    @IBOutlet weak var firstNameTextField: UITextField!
+    @IBOutlet weak var lastNameTextField: UITextField!
+    @IBOutlet weak var birthDatePicker: UIDatePicker!
+    @IBOutlet weak var genderSegmentedControl: UISegmentedControl!
     
     @IBOutlet weak var usernameTextField: UITextField!
     @IBOutlet weak var passwordTextField: UITextField!
@@ -44,11 +50,31 @@ class SignUpViewController: UIViewController {
                 return
             }
             
+            createUser(withId: authResult!.user.uid)
+            
+            
             let alert = UIAlertController(title: "Sign Up", message: "Account created successfully", preferredStyle: .alert)
             alert.addAction(UIAlertAction(title: "Ok", style: .default, handler: {_ in 
                 self.navigationController?.popViewController(animated: true)
             }))
             self.present(alert, animated: true, completion: nil)
+        }
+    }
+    
+    func createUser(withId userId: String) {
+        let username = usernameTextField.text ?? ""
+        let firstName = firstNameTextField.text ?? ""
+        let lastName = lastNameTextField.text ?? ""
+        let birthDate = birthDatePicker.date.millisecondsSince1970
+        let gender = genderSegmentedControl.selectedSegmentIndex
+        
+        let user = User(id: userId, username: username, firstName: firstName, lastName: lastName, gender: gender, birthDate: birthDate, profileImageUrl: nil)
+        
+        do {
+            let db = Firestore.firestore()
+            try db.collection("Users").document(userId).setData(from: user)
+        } catch let error {
+            print("Error writing city to Firestore: \(error)")
         }
     }
 
