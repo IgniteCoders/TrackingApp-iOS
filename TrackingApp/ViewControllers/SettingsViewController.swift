@@ -11,18 +11,21 @@ import FirebaseFirestore
 
 class SettingsViewController: UITableViewController {
     
+    var user: User? = nil
+    
     @IBOutlet weak var usernameLabel: UILabel!
     @IBOutlet weak var profileImageView: UIImageView!
 
     @IBOutlet weak var signOutCell: UITableViewCell!
+    
+    
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        profileImageView.layer.cornerRadius = profileImageView.frame.height / 2
-        profileImageView.layer.borderWidth = 3
-        profileImageView.layer.borderColor = UIColor.systemBlue.cgColor
+        profileImageView.setProfileStyle()
         
-        let userId = Auth.auth().currentUser!.uid
+        fetchUserData()
 
         // Uncomment the following line to preserve selection between presentations
         // self.clearsSelectionOnViewWillAppear = false
@@ -30,14 +33,22 @@ class SettingsViewController: UITableViewController {
         // Uncomment the following line to display an Edit button in the navigation bar for this view controller.
         // self.navigationItem.rightBarButtonItem = self.editButtonItem
         
+    }
+    
+    func fetchUserData() {
+        
+        let userId = Auth.auth().currentUser!.uid
+        
         Task {
             let db = Firestore.firestore()
             let docRef = db.collection("Users").document(userId)
             
             do {
-                let user = try await docRef.getDocument(as: User.self)
+                user = try await docRef.getDocument(as: User.self)
                 
                 DispatchQueue.main.async {
+                    guard let user = self.user else { return }
+                    
                     self.usernameLabel.text = user.fullName()
                     
                     if let url = user.profileImageUrl {
@@ -77,6 +88,17 @@ class SettingsViewController: UITableViewController {
         // tableView.indexPath(for: signOutCell)
         
         tableView.deselectRow(at: indexPath, animated: true)
+    }
+    
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        if segue.identifier == "NavigateToEditProfile" {
+            let editProfileViewController = (segue.destination as! UINavigationController).viewControllers[0] as! ProfileEditViewController
+            editProfileViewController.user = user
+        }
+    }
+    
+    @IBAction func endEditing(_ sender: UIStoryboardSegue) {
+        fetchUserData()
     }
 
     // MARK: - Table view data source
