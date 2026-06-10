@@ -32,5 +32,13 @@
 			</array>
 		</dict>
 	</dict>
+    <key>NSLocationWhenInUseUsageDescription</key>
+    <string>Necesitamos tu ubicación para registrar rutas.</string>
+    <key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+    <string>Necesitamos tu ubicación incluso en segundo plano para registrar rutas.</string>
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>location</string>
+	</array>
 </dict>
 </plist>
