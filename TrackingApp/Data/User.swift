@@ -14,6 +14,7 @@ struct User: Codable, Sendable {
     var gender: Int
     var birthDate: Int64?
     var profileImageUrl: String?
+    var profileImageBase64: String?
     
     func fullName() -> String {
         return "\(firstName) \(lastName)"

@@ -8,7 +8,7 @@
 import UIKit
 import FirebaseFirestore
 
-class ProfileEditViewController: UITableViewController {
+class ProfileEditViewController: UITableViewController, UIImagePickerControllerDelegate & UINavigationControllerDelegate {
     
     var user: User!
     
@@ -69,7 +69,9 @@ class ProfileEditViewController: UITableViewController {
         }))*/
         
         profileImageView.setProfileStyle()
-        if let url = user.profileImageUrl {
+        if let image = user.profileImageBase64?.imageFromBase64 {
+            profileImageView.image = image
+        } else if let url = user.profileImageUrl {
             profileImageView.loadFrom(url: url)
         }
 
@@ -81,6 +83,31 @@ class ProfileEditViewController: UITableViewController {
         }
         
         usernameTextField.text = user.username
+    }
+    
+    @IBAction func selectPicture(_ sender: Any) {
+        let picker = UIImagePickerController()
+        picker.allowsEditing = true
+        picker.delegate = self
+        present(picker, animated: true)
+    }
+    
+    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
+        
+        guard let image = info[.editedImage] as? UIImage else { return }
+
+        /*let imageName = UUID().uuidString
+        let imagePath = getDocumentsDirectory().appendingPathComponent(imageName)
+
+        if let jpegData = image.jpegData(compressionQuality: 0.8) {
+            try? jpegData.write(to: imagePath)
+        }*/
+        
+        profileImageView.image = image
+        
+        user.profileImageBase64 = image.resizeImage(100, opaque: true).base64EncodedString()
+
+        dismiss(animated: true)
     }
     
     @IBAction func saveProfile(_ sender: Any) {

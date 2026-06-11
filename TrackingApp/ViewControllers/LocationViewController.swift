@@ -33,7 +33,7 @@ class LocationViewController: UIViewController {
                 let db = Firestore.firestore()
                 let querySnapshot = try await db.collection("Routes")
                     .whereField("userId", isEqualTo: userId)
-                    .whereField("endDate", isEqualTo: -1)
+                    .whereField("ended", isEqualTo: false)
                     .limit(to: 1)
                     .getDocuments()
                 
@@ -76,7 +76,7 @@ class LocationViewController: UIViewController {
                 
                 let docRef = try await db.collection("Routes").addDocument(data: [:])
                 
-                let route = Route(id: docRef.documentID, userId: userId, startDate: Date().millisecondsSince1970, endDate: nil)
+                let route = Route(id: docRef.documentID, userId: userId, startDate: Date().millisecondsSince1970, endDate: nil, ended: false)
                 
                 try docRef.setData(from: route)
                 
@@ -97,7 +97,7 @@ class LocationViewController: UIViewController {
             do {
                 let db = Firestore.firestore()
                 
-                try db.collection("Routes").document(LocationService.shared.routeId!).setData(["endDate": Date().millisecondsSince1970], merge: true)
+                try db.collection("Routes").document(LocationService.shared.routeId!).setData(["endDate": Date().millisecondsSince1970, "ended": true], merge: true)
                 
                 DispatchQueue.main.async {
                     LocationService.shared.stopTracking()

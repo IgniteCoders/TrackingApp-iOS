@@ -11,10 +11,16 @@ import FirebaseFirestore
 
 class RoutesViewController: UIViewController, UITableViewDataSource {
     
+    // MARK: - Outlets
+    
     @IBOutlet weak var tableView: UITableView!
+    
+    // MARK: - Properties
     
     var routeList: [Route] = []
 
+    // MARK: - Lifecycle
+    
     override func viewDidLoad() {
         super.viewDidLoad()
 
@@ -28,6 +34,8 @@ class RoutesViewController: UIViewController, UITableViewDataSource {
         fetchRoutes()
     }
     
+    // MARK: - Firestore logic
+    
     func fetchRoutes() {
         let userId = Auth.auth().currentUser!.uid
         
@@ -35,7 +43,7 @@ class RoutesViewController: UIViewController, UITableViewDataSource {
         Task {
             do {
                 let db = Firestore.firestore()
-                let querySnapshot = try await db.collection("Routes").whereField("userId", isEqualTo: userId).getDocuments()
+                let querySnapshot = try await db.collection("Routes").whereField("userId", isEqualTo: userId).order(by: "startDate", descending: true).getDocuments()
                 for document in querySnapshot.documents {
                     let route = try document.data(as: Route.self)
                     routes.append(route)
@@ -52,6 +60,8 @@ class RoutesViewController: UIViewController, UITableViewDataSource {
             }
         }
     }
+    
+    // MARK: - TableView Datasource
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return routeList.count

@@ -13,6 +13,10 @@ class MapViewController: UIViewController, MKMapViewDelegate {
     
     @IBOutlet weak var mapView: MKMapView!
     
+    @IBOutlet weak var followUserButton: UIButton!
+    
+    var isFollowingUser = true
+    
     var route: Route!
     
     var coordinates: [Coordinate] = []
@@ -22,6 +26,9 @@ class MapViewController: UIViewController, MKMapViewDelegate {
         
         // Do any additional setup after loading the view.
         mapView.delegate = self
+        
+        followUserButton.isHidden = true
+        self.mapView.userTrackingMode = .follow
         
         fetchCoordinates()
     }
@@ -55,17 +62,7 @@ class MapViewController: UIViewController, MKMapViewDelegate {
                 
                 self.mapView.addOverlay(polyline)
                 
-                if self.route.endDate == nil {
-                    guard let coordinate = coordinates.last else { return }
-
-                    let region = MKCoordinateRegion(
-                        center: coordinate,
-                        latitudinalMeters: 100,
-                        longitudinalMeters: 100
-                    )
-
-                    self.mapView.setRegion(region, animated: true)
-                } else {
+                if self.route.endDate != nil {
                     let padding = UIEdgeInsets(
                         top: 50,
                         left: 50,
@@ -82,6 +79,16 @@ class MapViewController: UIViewController, MKMapViewDelegate {
             }
     }
     
+    @IBAction func beginFollowingUser(_ sender: Any) {
+        followUserButton.isHidden = true
+        isFollowingUser = true
+        mapView.userTrackingMode = .follow
+    }
+    
+    func stopFollowingUser() {
+        isFollowingUser = false
+        followUserButton.isHidden = false
+    }
     
     func mapView(_ mapView: MKMapView, rendererFor overlay: MKOverlay) -> MKOverlayRenderer {
 
@@ -94,6 +101,12 @@ class MapViewController: UIViewController, MKMapViewDelegate {
         renderer.lineWidth = 5
 
         return renderer
+    }
+    
+    func mapView(_ mapView: MKMapView, didChange mode: MKUserTrackingMode, animated: Bool) {
+        if mode != .follow {
+            stopFollowingUser()
+        }
     }
     
     

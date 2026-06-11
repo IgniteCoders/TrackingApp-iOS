@@ -51,7 +51,9 @@ class SettingsViewController: UITableViewController {
                     
                     self.usernameLabel.text = user.fullName()
                     
-                    if let url = user.profileImageUrl {
+                    if let image = user.profileImageBase64?.imageFromBase64 {
+                        self.profileImageView.image = image
+                    } else if let url = user.profileImageUrl {
                         self.profileImageView.loadFrom(url: url)
                     }
                 }

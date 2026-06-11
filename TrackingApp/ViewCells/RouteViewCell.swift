@@ -23,7 +23,27 @@ class RouteViewCell: UITableViewCell {
     }
     
     func configure(with route: Route) {
-        titleLabel.text = route.id
+        let startDate = Date(milliseconds: route.startDate)
+        let endDate = route.endDate != nil ? Date(milliseconds: route.endDate!) : nil
+        
+        let dateFormatter = DateFormatter()
+        dateFormatter.locale = .current      // Idioma y región del dispositivo
+        dateFormatter.dateStyle = .medium
+        dateFormatter.timeStyle = .none
+        
+        let timeFormatter = DateFormatter()
+        timeFormatter.locale = .current      // Idioma y región del dispositivo
+        timeFormatter.dateStyle = .none
+        timeFormatter.timeStyle = .short
+        
+        var endString = "Navigating..."
+        titleLabel.textColor = .systemGreen
+        if (endDate != nil) {
+            endString = timeFormatter.string(from: endDate!)
+            titleLabel.textColor = .label
+        }
+        
+        titleLabel.text = "\(dateFormatter.string(from: startDate)): \(timeFormatter.string(from: startDate)) - \(endString)"
     }
 
 }
